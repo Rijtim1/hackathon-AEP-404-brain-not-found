@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langchain-community = "==0.3.3"
+matplotlib = "==3.9.2"
+pandas = "==2.2.3"
+tqdm = "==4.66.2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
