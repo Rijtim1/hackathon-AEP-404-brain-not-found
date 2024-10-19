@@ -5,6 +5,7 @@ import string
 import json
 from tqdm import tqdm
 from langchain_community.chat_models import ChatOllama
+import matplotlib.pyplot as plt
 
 class SafetyObservationProcessor:
     def __init__(self, model_name="llama3.2:3b", temperature=0.1, top_k=100, top_p=0.1, seed=None, mirostat_tau=0.1, batch_size=10, risk_threshold=15):
@@ -218,6 +219,48 @@ class SafetyObservationProcessor:
         dataframe.to_csv(file_name, index=False)
         print(f"Processing complete. LLM responses saved to {file_name}")
 
+    def plot_severity_score_distribution(self, dataframe):
+        """Plot distribution of severity scores."""
+        plt.figure(figsize=(10, 6))
+        plt.hist(dataframe['SEVERITY_SCORE'].dropna(), bins=range(1, 7), edgecolor='black', alpha=0.7)
+        plt.title('Severity Score Distribution', fontsize=16)
+        plt.xlabel('Severity Score (1 to 5)', fontsize=14)
+        plt.ylabel('Frequency', fontsize=14)
+        plt.xticks(range(1, 6))  # Severity Score is from 1 to 5
+        plt.grid(True)
+        plt.show()
+
+    def plot_confidence_score_distribution(self, dataframe):
+        """Plot distribution of confidence scores."""
+        plt.figure(figsize=(10, 6))
+        plt.hist(dataframe['CONFIDENCE_SCORE'].dropna(), bins=10, edgecolor='black', alpha=0.7)
+        plt.title('Confidence Score Distribution', fontsize=16)
+        plt.xlabel('Confidence Score (0 to 1)', fontsize=14)
+        plt.ylabel('Frequency', fontsize=14)
+        plt.grid(True)
+        plt.show()
+
+    def plot_high_risk_keyword_distribution(self, dataframe, risk_keywords):
+        """Plot frequency of high-risk keywords."""
+        keyword_count = {k: 0 for k in risk_keywords}
+        
+        # Preprocessing the combined text data and counting keywords
+        for _, row in dataframe.iterrows():
+            text = self.preprocess_text(f"{row['PNT_NM']} {row['QUALIFIER_TXT']} {row['PNT_ATRISKNOTES_TX']} {row['PNT_ATRISKFOLWUPNTS_TX']}")
+            for keyword in risk_keywords:
+                keyword_count[keyword] += text.count(keyword)
+
+        # Create a bar plot for keyword frequency
+        plt.figure(figsize=(12, 6))
+        plt.bar(keyword_count.keys(), keyword_count.values(), color='royalblue', alpha=0.7)
+        plt.title('High-Risk Keyword Frequency', fontsize=16)
+        plt.xlabel('Keywords', fontsize=14)
+        plt.ylabel('Frequency', fontsize=14)
+        plt.xticks(rotation=45, ha='right')
+        plt.grid(True)
+        plt.show()
+
+
 # Example usage
 if __name__ == "__main__":
     # Initialize the processor
@@ -263,3 +306,8 @@ if __name__ == "__main__":
     # Save results
     processor.save_output(processed_df)
     processor.save_failed_responses(failed_responses)
+
+    # Visualization of results
+    processor.plot_severity_score_distribution(processed_df)
+    processor.plot_confidence_score_distribution(processed_df)
+    processor.plot_high_risk_keyword_distribution(processed_df, SIF_KEYWORDS)
