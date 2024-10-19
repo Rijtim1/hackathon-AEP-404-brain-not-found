@@ -11,7 +11,7 @@ class SafetyObservationProcessor:
     def __init__(self, model_name="llama3.2:3b", temperature=0.1, top_k=100, top_p=0.1, seed=None, mirostat_tau=0.1, batch_size=10, risk_threshold=15):
         """
         Initializes the SafetyObservationProcessor with specified model parameters and settings.
-
+        
         Parameters:
         - model_name (str): The name of the LLM model to use.
         - temperature (float): Sampling temperature for the LLM.
@@ -20,7 +20,7 @@ class SafetyObservationProcessor:
         - seed (int): Seed for the random generator to ensure reproducibility.
         - mirostat_tau (float): Tau parameter for Mirostat sampling.
         - batch_size (int): The number of prompts to process in one batch.
-        - risk_threshold (int): The minimum risk score required to process a row.
+        - risk_threshold (int): The minimum risk score required to process a row. (15 for testing)
         """
         self.seed = seed if seed else int(time.time())  # Use provided seed or generate based on current time
         self.batch_size = batch_size
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     processor = SafetyObservationProcessor()
 
     # Load dataset
-    DATA_FILE = r"CORE_HackOhio_subset_cleaned_downsampled.csv"
+    DATA_FILE = r"CORE_HackOhio_subset_cleaned_downsampled 1.csv"
     dataframe = pd.read_csv(DATA_FILE)
 
     # Define prompt template
